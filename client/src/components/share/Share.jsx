@@ -28,10 +28,10 @@ const Share = () => {
 
   const mutation = useMutation({
     
-    mutationFn: (newPost) => makeRequest.post("/posts", newPost),
+    mutationFn : (newPost) => makeRequest.post("/posts", newPost),
 
     onSuccess: () => {
-      // Invalidate and refetch
+      // utaInvalidate and refetch
       queryClient.invalidateQueries(["posts"]);
     },
   });

@@ -1,51 +1,61 @@
-import { useContext } from "react"
+import { useContext, useState } from "react"
 import "./comments.scss"
 import { AuthContext } from "../../context/authContext"
 import SendOutlinedIcon from '@mui/icons-material/SendOutlined';
+import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
+import { makeRequest } from "../../axios";
+import moment from "moment";
 
-export const Comments = () => {
+export const Comments = ({postId}) => {
+
+    const [desc, setDesc] =useState("");
+    const [file, setFile] =useState("");
 
     const {currentUser} = useContext(AuthContext);
 
-    //Temp
-    const comments = [
-        {
-            id: 1,
-            desc: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam ipsam nam rem corrupti, necessitatibus facilis.",
-            name: "Joy Roy",
-            userId: 1,
-            profilePic:"https://images.pexels.com/photos/1615776/pexels-photo-1615776.jpeg"
-        },
-        {
-            id: 2,
-            desc: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam ipsam nam rem corrupti, necessitatibus facilis.",
-            name: "Joy Roy",
-            userId: 2,
-            profilePic:"https://images.pexels.com/photos/1615776/pexels-photo-1615776.jpeg"
-        },
-        {
-            id: 3,
-            desc: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam ipsam nam rem corrupti, necessitatibus facilis.",
-            name: "Joy Roy",
-            userId: 3,
-            profilePic:"https://images.pexels.com/photos/1615776/pexels-photo-1615776.jpeg"
-        }
-    ]
+    const { isLoading, error, data } = useQuery({
+        queryKey: ["comments"],
+        queryFn: () => makeRequest.get("/comments?postId="+postId).then((res) => {
+            return res.data;
+        })
+    });
+
+    const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    
+    mutationFn: (newComment) => makeRequest.post("/comments", newComment),
+
+    onSuccess: () => {
+      // utaInvalidate and refetch
+      queryClient.invalidateQueries(["comments"]);
+    },
+  });
+
+  const handleClick = async (e) => {
+    e.preventDefault();
+    
+    mutation.mutate({ desc, postId});
+    setDesc("");
+    setFile(null);
+  };
+
+    
   return (
     <div className="comments">
         <div className="write">
             <img src={currentUser.profilePic} alt="" />
-            <input type="text" placeholder="Write your commeny" />
-            <button><SendOutlinedIcon/></button>
+            <input type="text" placeholder="Write your comment" value={desc} onChange={(e)=>setDesc(e.target.value)}/>
+            <button onClick={handleClick}><SendOutlinedIcon/></button>
         </div>
-        {comments.map((comment)=>(
-            <div className="comment">
+        {isLoading? "loading" : data.map((comment)=>(
+            <div className="comment" key={comment.id} >
                 <img src={comment.profilePic} alt="" />
                 <div className="info">
                     <span>{comment.name}</span>
                     <p>{comment.desc}</p>
                 </div>
-                <span className="date">1 hour</span>
+                <span className="date">{moment(comment.createdAt).fromNow()}</span>
             </div>
         ))}
 

@@ -14,6 +14,8 @@ export const Post = ({post}) => {
     const [commentOpen, setCommentOpen]= useState(false);
     //Temp
     const liked= false;
+    const postId= post.id;
+    
 
   return (
     <div className="post">
@@ -48,7 +50,7 @@ export const Post = ({post}) => {
                     15 shares
                 </div>
             </div>
-            {commentOpen && <Comments/>}
+            {commentOpen && <Comments postId= {post.id}/>}
         </div>
     </div>
   )
