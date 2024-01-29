@@ -58,7 +58,7 @@ export const Post = ({ post }) => {
         <div className="user">
           <div className="userInfo">
             <Link to={`/profile/${post.userId}`}>
-              <img src={post.profilePic} alt="" />
+              <img src={"/upload/" + post.profilePic} alt="" />
             </Link>
 
             <div className="details">
@@ -97,7 +97,7 @@ export const Post = ({ post }) => {
           </div>
           <div className="item">
             <ShareOutlinedIcon />
-            15 shares
+            
           </div>
         </div>
         {commentOpen && <Comments postId={post.id} />}
